@@ -1,0 +1,10 @@
+{
+  "name": "reporter.js",
+  "version": "0.0.1",
+  "dependencies": {
+    "@actual-app/api": "^26.3.0",
+    "async-lock": "^1.4.1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}
