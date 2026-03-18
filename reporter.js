@@ -45,8 +45,9 @@ async function init() {
   app.use(cors())
   app.use(express.json());
 
-  app.post('/transaction', async function (req, res, _next) {
+  app.post('/actual-api/transaction', async function (req, res, _next) {
     await lock.acquire('transaction', async () => {
+      console.debug('Executing Transaction');
       try {
         await api.init({
           dataDir: config.dataDir,
@@ -54,9 +55,12 @@ async function init() {
           password: config.password,
         });
         const transaction = makeTransaction(parse(req.body), config.accountId);
+        console.log(transaction);
         await api.addTransactions(config.accountId, [transaction]);
+        console.log(`Successfully logged "${transaction.payee_name} - ￥${transaction.amount}"`);
         return res.json({ result: 'success' });
       } catch {
+        console.log('Transaction failed...');
         return res.json({ result: 'failure' });
       } finally {
         await api.shutdown();
