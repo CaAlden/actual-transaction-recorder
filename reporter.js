@@ -33,7 +33,10 @@ function makeTransaction(data, account) {
     account,
     date: new Date().toLocaleDateString('sv-SE'), // "YYYY-MM-DD"
     payee_name: data.title,
-    amount: data.amount,
+    // Actual considers this an integer representing a decimal value so the last two digits of the integer
+    // are placed after the decimal point (unclear why but okay...)
+    // It has to be negative or actual will think it's a deposit
+    amount: data.amount * -100,
     cleared: true,
   };
 }
@@ -49,7 +52,6 @@ async function addTransaction(config, transaction) {
     await api.sync();
 
     await api.addTransactions(config.accountId, [transaction]);
-    await api.commit();
   } finally {
     await api.shutdown();
   }
