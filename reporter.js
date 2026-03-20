@@ -1,6 +1,9 @@
 // Expects a JSON config file to be passed in the env variable CONFIG_FILE.
 // The file should contain:
 // "dataDir": path
+// "serverURL": where to point the requests
+// "password": The password for logging in
+// "budgetId": The ID of the budget containing the account to write transactions into.
 // "accountId": UUID for the account to add transactions to.
 
 import express from 'express'
@@ -35,6 +38,24 @@ function makeTransaction(data, account) {
   };
 }
 
+async function addTransaction(config, transaction) {
+  try {
+    await api.init({
+      dataDir: config.dataDir,
+      serverURL: config.serverURL,
+      password: config.password,
+    });
+    await api.downloadBudget(config.budgetId);
+    await api.loadBudget(config, budgetId); // include this even if docs don’t emphasize it
+    await api.sync();
+
+    await api.addTransactions(config.accountId, [transaction]);
+    await api.commit();
+  } finally {
+    await api.shutdown();
+  }
+}
+
 async function init() {
   const config = JSON.parse(fs.readFileSync(process.env.CONFIG_FILE));
   const app = express();
@@ -48,12 +69,9 @@ async function init() {
     await lock.acquire('transaction', async () => {
       console.debug('Executing Transaction');
       try {
-        await api.init({
-          dataDir: config.dataDir,
-        });
         const transaction = makeTransaction(parse(req.body), config.accountId);
         console.log(transaction);
-        await api.addTransactions(config.accountId, [transaction]);
+        await addTransaction(config, transaction)
         console.log(`Successfully logged "${transaction.payee_name} - ￥${transaction.amount}"`);
         return res.json({ result: 'success' });
       } catch (e) {
@@ -61,8 +79,6 @@ async function init() {
         console.log(e);
         console.log(e.message);
         return res.json({ result: 'failure' });
-      } finally {
-        await api.shutdown();
       }
     });
   });
