@@ -1,8 +1,7 @@
 // Expects a JSON config file to be passed in the env variable CONFIG_FILE.
 // The file should contain:
 // "dataDir": path
-// "serverURL": "http://localhost:5006"
-// "password": "hunter1"
+// "accountId": UUID for the account to add transactions to.
 
 import express from 'express'
 import AsyncLock from 'async-lock';
@@ -51,8 +50,6 @@ async function init() {
       try {
         await api.init({
           dataDir: config.dataDir,
-          serverURL: config.serverURL,
-          password: config.password,
         });
         const transaction = makeTransaction(parse(req.body), config.accountId);
         console.log(transaction);
