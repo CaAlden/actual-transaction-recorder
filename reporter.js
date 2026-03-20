@@ -56,8 +56,10 @@ async function init() {
         await api.addTransactions(config.accountId, [transaction]);
         console.log(`Successfully logged "${transaction.payee_name} - ￥${transaction.amount}"`);
         return res.json({ result: 'success' });
-      } catch {
+      } catch (e) {
         console.log('Transaction failed...');
+        console.log(e);
+        console.log(e.message);
         return res.json({ result: 'failure' });
       } finally {
         await api.shutdown();
