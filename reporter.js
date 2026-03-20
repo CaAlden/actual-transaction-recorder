@@ -46,7 +46,6 @@ async function addTransaction(config, transaction) {
       password: config.password,
     });
     await api.downloadBudget(config.budgetId);
-    await api.loadBudget(config, budgetId); // include this even if docs don’t emphasize it
     await api.sync();
 
     await api.addTransactions(config.accountId, [transaction]);
