@@ -14,15 +14,15 @@ import fs from 'fs';
 
 function parse(data) {
   if (typeof data !== 'object' || data === null) {
-    throw new Error('Bad Data');
+    throw new Error(`Bad Data, expected an object, got: ${data === null ? null : typeof data}`);
   }
 
   if (typeof data.title !== 'string') {
-    throw new Error('Bad Title');
+    throw new Error(`Bad Title: ${data.title}`);
   }
 
   if (typeof data.amount !== 'number' || typeof data.amount !== 'string') {
-    throw new Error('Bad amount');
+    throw new Error(`Bad amount: ${data.amount}`);
   }
 
   if (typeof data.amount === 'string') {
@@ -85,7 +85,7 @@ async function init() {
         console.log('Transaction failed...');
         console.log(e);
         console.log(e.message);
-        return res.json({ result: 'failure' });
+        return res.json({ result: 'failure', error: e.message });
       }
     });
   });
