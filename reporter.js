@@ -21,9 +21,15 @@ function parse(data) {
     throw new Error('Bad Title');
   }
 
-  if (typeof data.amount !== 'number') {
+  if (typeof data.amount !== 'number' || typeof data.amount !== 'string') {
     throw new Error('Bad amount');
   }
+
+  if (typeof data.amount === 'string') {
+    const value = Number(data.amount.replaceAll(/[^\d]/g, ''));
+    data.amount = Number.isNaN(value) ? 0 : value;
+  }
+
   
   return data;
 }
